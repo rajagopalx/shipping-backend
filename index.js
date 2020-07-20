@@ -8,20 +8,43 @@ const swaggerDoc = require('fastify-swagger');
 const swagger = require('./src/config/swagger');
 const routes = require('./src/routes');
 const Ajv = require('ajv');
+const { result } = require('lodash');
 const ajv = new Ajv({
 	useDefaults: true,
 	coerceTypes: true,
 	$data: true,
 	extendRefs: true
 });
-
+const Order = require('./src/models/order');
 // Connect to DB
 mongoose.connect(config.MONGO_HOST_URL, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 		useFindAndModify: false
 	})
-	.then(() => console.log("Mongodb connected"))
+	.then(result => {
+		console.log("Mongodb connected");
+		const order = new Order({
+			amount: 1000,
+			address: {
+				name: "Hindu",
+				city: "Chennai",
+				street: "Main Street",
+				pincode: 600032
+			},
+			products: [
+				{
+					product: "5f0ed43ce5bff0168d3f34f4",
+					quantity: 5
+				},
+				{
+					product: "5f0ec8ec09808dd49c3ae22a",
+					quantity: 15
+				}
+			]
+		});
+		order.save();
+	})
 	.catch(err => console.log(err));
 
 // Declare a route
